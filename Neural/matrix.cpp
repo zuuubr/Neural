@@ -1,12 +1,27 @@
 #include "matrix.h"
 
-Matrix::Matrix(int _size_y, int _size_x) {
+Matrix::Matrix() {
+	size_x = 1;
+	size_y = 1;
+
+	matrix = new float*[1];
+	matrix[0] = new float[1];
+	matrix[0][0] = 0.0;
+}
+
+Matrix::Matrix(int _size_y, int _size_x, float num) {
 	size_x = _size_x;
 	size_y = _size_y;
 
 	matrix = new float*[size_x];
 	for (int i = 0; i < size_x; i++) {
 		matrix[i] = new float[size_y];
+	}
+
+	for (int i = 0; i < size_x; i++) {
+		for (int j = 0; j < size_y; j++) {
+			matrix[i][j] = num;
+		}
 	}
 }
 
@@ -37,6 +52,24 @@ void Matrix::show() {
 		}
 		std::cout << std::endl;
 	}
+}
+
+const Matrix Matrix::transponse() {
+	/* 1 2 3		=>	1 4
+	   4 5 6		=> 	2 5
+					=> 	3 6
+	   size_y = 3	=>	size_y = 2
+	   size_x = 2	=>	size_x = 3
+	*/
+
+	Matrix result(size_x, size_y);
+	for (int i = 0; i < result.size_x; i++) {
+		for (int j = 0; j < result.size_y; j++) {
+			result.matrix[i][j] = this->matrix[j][i];
+		}
+	}
+
+	return result;
 }
 
 const Matrix Matrix::operator+(const Matrix& right) {
