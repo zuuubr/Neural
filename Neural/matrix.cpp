@@ -54,14 +54,7 @@ void Matrix::show() {
 	}
 }
 
-const Matrix Matrix::transponse() {
-	/* 1 2 3		=>	1 4
-	   4 5 6		=> 	2 5
-					=> 	3 6
-	   size_y = 3	=>	size_y = 2
-	   size_x = 2	=>	size_x = 3
-	*/
-
+Matrix Matrix::transponse() {
 	Matrix result(size_x, size_y);
 	for (int i = 0; i < result.size_x; i++) {
 		for (int j = 0; j < result.size_y; j++) {
@@ -72,7 +65,24 @@ const Matrix Matrix::transponse() {
 	return result;
 }
 
-const Matrix Matrix::operator+(const Matrix& right) {
+Matrix multiplication(const Matrix left, const Matrix right) {
+	if (left.size_x != right.size_x || left.size_y != right.size_y)
+	{
+		std::cout << "ERROR: arrays of different sizes!" << std::endl;
+		exit(1);
+	}
+
+	Matrix result(left.size_x, left.size_y);
+	for (int i = 0; i < left.size_x; i++) {
+		for (int j = 0; j < left.size_y; j++) {
+			result.toApplyElement(i, j, left.matrix[i][j] * right.matrix[i][j]);
+		}
+	}
+
+	return result;
+}
+
+Matrix Matrix::operator+(const Matrix& right) {
 	if (size_x != right.size_x || size_y != right.size_y)
 	{
 		std::cout << "ERROR: arrays of different sizes!" << std::endl;
@@ -89,7 +99,7 @@ const Matrix Matrix::operator+(const Matrix& right) {
 	return result;
 }
 
-const Matrix Matrix::operator+=(const Matrix& right) {
+Matrix Matrix::operator+=(const Matrix& right) {
 	if (size_x != right.size_x || size_y != right.size_y)
 	{
 		std::cout << "ERROR: arrays of different sizes!" << std::endl;
@@ -105,8 +115,8 @@ const Matrix Matrix::operator+=(const Matrix& right) {
 	return *this;
 }
 
-const Matrix Matrix::operator*(const Matrix& right) {
-	if (size_y != right.size_x) {
+Matrix Matrix::operator*(const Matrix& right) {
+	if (size_x != right.size_y) {
 		std::cout << "ERROR: arrays of different sizes!" << std::endl;
 		exit(1);
 	}
@@ -124,7 +134,7 @@ const Matrix Matrix::operator*(const Matrix& right) {
 	return result;
 }
 
-const Matrix Matrix::operator-(const Matrix& right) {
+Matrix Matrix::operator-(const Matrix& right) {
 	if (size_x != right.size_x || size_y != right.size_y)
 	{
 		std::cout << "ERROR: arrays of different sizes!" << std::endl;
@@ -141,7 +151,7 @@ const Matrix Matrix::operator-(const Matrix& right) {
 	return result;
 }
 
-const Matrix Matrix::operator-=(const Matrix& right) {
+Matrix Matrix::operator-=(const Matrix& right) {
 	if (size_x != right.size_x || size_y != right.size_y)
 	{
 		std::cout << "ERROR: arrays of different sizes!" << std::endl;
@@ -157,7 +167,7 @@ const Matrix Matrix::operator-=(const Matrix& right) {
 	return *this;
 }
 
-const Matrix& Matrix::operator=(const Matrix& right) {
+Matrix& Matrix::operator=(const Matrix& right) {
 	if (&right != this) // чтобы не выполнялось самоприсваивание
 	{
 		if (this->size_x != right.size_x || this->size_y != right.size_y)
@@ -184,7 +194,7 @@ const Matrix& Matrix::operator=(const Matrix& right) {
 	return *this;
 }
 
-const Matrix Matrix::operator*(float num) {
+Matrix Matrix::operator*(float num) {
 
 	Matrix result(this->size_y, this->size_x);
 	for (int i = 0; i < this->size_x; i++) {
@@ -196,7 +206,7 @@ const Matrix Matrix::operator*(float num) {
 	return result;
 }
 
-const Matrix operator*(float num, const Matrix& right)
+Matrix operator*(float num, const Matrix& right)
 {
 	Matrix result(right.size_y, right.size_x);
 	for (int i = 0; i < right.size_x; i++) {
@@ -208,7 +218,7 @@ const Matrix operator*(float num, const Matrix& right)
 	return result;
 }
 
-const Matrix Matrix::operator/(float num) {
+Matrix Matrix::operator/(float num) {
 	if (!num) {
 		std::cout << "ERROR: division by zero" << std::endl;
 		exit(1);
