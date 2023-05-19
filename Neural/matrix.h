@@ -1,30 +1,33 @@
 #pragma once
-#include <iostream>
-
 
 class Matrix {
 private:
-	float** matrix;
-	int size_x, size_y;
+	float** array;
+	int row, col;
 public:
-	Matrix(int, int, float = 0);
 	Matrix();
-	float getElement(int, int);
+	Matrix(int, int, float = 0.0);
+
+	float getElement(int, int) const;
 	void toApplyElement(int, int, float);
-	int size();
-	int rowSize();
-	int colSize();
-	void show();
-	Matrix transponse();
-	friend Matrix multiplication(const Matrix, const Matrix);
-	Matrix operator+(const Matrix&);
-	Matrix operator+=(const Matrix&);
-	Matrix operator-(const Matrix&);
-	Matrix operator-=(const Matrix&);
-	Matrix operator*(const Matrix&);
-	Matrix operator*(float);
-	Matrix operator/(float);
+	int size() const;
+	int rowSize() const;
+	int colSize() const;
+	Matrix max() const;
+	Matrix min() const;
+	void show() const;
+	Matrix transponse() const;
+
+	Matrix operator+(const Matrix&) const;
+	Matrix& operator+=(const Matrix&);
+	Matrix operator-(const Matrix&) const;
+	Matrix& operator-=(const Matrix&);
+	Matrix operator*(const Matrix&) const;
+	Matrix operator*(float) const;
+	Matrix operator/(float) const;
 	Matrix& operator=(const Matrix&);
+
 	friend Matrix operator*(float, const Matrix&);
+	friend Matrix multiplication(const Matrix&, const Matrix&);
 	~Matrix();
 };

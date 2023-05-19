@@ -1,132 +1,72 @@
 #include "matrix.h"
+#include <iostream>
 
-Matrix::Matrix() {
-	size_x = 1;
-	size_y = 1;
+Matrix::Matrix() : row(0), col(0), array(nullptr) { }
 
-	matrix = new float*[1];
-	matrix[0] = new float[1];
-	matrix[0][0] = 0.0;
-}
-
-Matrix::Matrix(int _size_y, int _size_x, float num) {
-	size_x = _size_x;
-	size_y = _size_y;
-
-	matrix = new float*[size_x];
-	for (int i = 0; i < size_x; i++) {
-		matrix[i] = new float[size_y];
-	}
-
-	for (int i = 0; i < size_x; i++) {
-		for (int j = 0; j < size_y; j++) {
-			matrix[i][j] = num;
-		}
+Matrix::Matrix(int _row, int _col, float value) : row(_row), col(_col), array(nullptr) {
+	array = new float* [row];
+	for (int i = 0; i < row; i++) {
+		array[i] = new float[col];
+		for (int j = 0; j < col; j++) array[i][j] = value;
 	}
 }
 
-float Matrix::getElement(int i, int j) {
-	return matrix[i][j];
+float Matrix::getElement(int _row, int _col) const {
+	if (_row > row || _row < 0 || _col > col || _col < 0) {
+		std::cout << "ERROR: accessing a nonexistent variable." << std::endl;
+		exit(1);
+	}
+
+	return array[_row][_col];
 }
 
-void Matrix::toApplyElement(int i, int j, float value) {
-	matrix[i][j] = value;
+void Matrix::toApplyElement(int _row, int _col, float value) {
+	array[_row][_col] = value;
 }
 
-int Matrix::size() {
-	return size_x * size_y;
+int Matrix::size() const {
+	return col * row;
 }
 
-int Matrix::rowSize() {
-	return size_y;
+int Matrix::rowSize() const {
+	return row;
 }
 
-int Matrix::colSize() {
-	return size_x;
+int Matrix::colSize() const {
+	return col;
 }
 
-void Matrix::show() {
-	for (int i = 0; i < size_x; i++) {
-		for (int j = 0; j < size_y; j++) {
-			std::cout << getElement(i, j) << "\t";
+void Matrix::show() const {
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			std::cout << array[i][j] << " ";
 		}
 		std::cout << std::endl;
 	}
 }
 
-Matrix Matrix::transponse() {
-	Matrix result(size_x, size_y);
-	for (int i = 0; i < result.size_x; i++) {
-		for (int j = 0; j < result.size_y; j++) {
-			result.matrix[i][j] = this->matrix[j][i];
+Matrix Matrix::transponse() const {
+	Matrix result(col, row);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			result.array[j][i] = array[i][j];
 		}
 	}
 
 	return result;
 }
 
-Matrix multiplication(const Matrix left, const Matrix right) {
-	if (left.size_x != right.size_x || left.size_y != right.size_y)
-	{
-		std::cout << "ERROR: arrays of different sizes!" << std::endl;
-		exit(1);
-	}
+Matrix Matrix::max() const {
+	float max = array[0][0];
+	int index_x, index_y;
+	Matrix result(1, 2);
 
-	Matrix result(left.size_x, left.size_y);
-	for (int i = 0; i < left.size_x; i++) {
-		for (int j = 0; j < left.size_y; j++) {
-			result.toApplyElement(i, j, left.matrix[i][j] * right.matrix[i][j]);
-		}
-	}
-
-	return result;
-}
-
-Matrix Matrix::operator+(const Matrix& right) {
-	if (size_x != right.size_x || size_y != right.size_y)
-	{
-		std::cout << "ERROR: arrays of different sizes!" << std::endl;
-		exit(1);
-	}
-
-	Matrix result(size_x, size_y);
-	for (int i = 0; i < size_x; i++) {
-		for (int j = 0; j < size_y; j++) {
-			result.toApplyElement(i, j, matrix[i][j] + right.matrix[i][j]);
-		}
-	}
-
-	return result;
-}
-
-Matrix Matrix::operator+=(const Matrix& right) {
-	if (size_x != right.size_x || size_y != right.size_y)
-	{
-		std::cout << "ERROR: arrays of different sizes!" << std::endl;
-		exit(1);
-	}
-
-	for (int i = 0; i < size_x; i++) {
-		for (int j = 0; j < size_y; j++) {
-			toApplyElement(i, j, matrix[i][j] + right.matrix[i][j]);
-		}
-	}
-
-	return *this;
-}
-
-Matrix Matrix::operator*(const Matrix& right) {
-	if (size_x != right.size_y) {
-		std::cout << "ERROR: arrays of different sizes!" << std::endl;
-		exit(1);
-	}
-
-	Matrix result(right.size_y, right.size_x);
-	for (int i = 0; i < result.size_x; i++) {
-		for (int j = 0; j < result.size_y; j++) {
-			result.toApplyElement(i, j, 0);
-			for (int k = 0; k < right.size_x; k++) {
-				result.toApplyElement(i, j, result.getElement(i, j) + matrix[i][k] * right.matrix[k][j]);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			if (array[i][j] > max) {
+				max = array[i][j];
+				result.array[0][0] = i;
+				result.array[0][1] = j;
 			}
 		}
 	}
@@ -134,100 +74,191 @@ Matrix Matrix::operator*(const Matrix& right) {
 	return result;
 }
 
-Matrix Matrix::operator-(const Matrix& right) {
-	if (size_x != right.size_x || size_y != right.size_y)
-	{
-		std::cout << "ERROR: arrays of different sizes!" << std::endl;
-		exit(1);
-	}
+Matrix Matrix::min() const {
+	float min = array[0][0];
+	int index_x, index_y;
+	Matrix result(1, 2);
 
-	Matrix result(size_y, size_x);
-	for (int i = 0; i < size_x; i++) {
-		for (int j = 0; j < size_y; j++) {
-			result.toApplyElement(i, j, matrix[i][j] - right.matrix[i][j]);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			if (array[i][j] < min) {
+				min = array[i][j];
+				result.array[0][0] = i;
+				result.array[0][1] = j;
+			}
 		}
 	}
 
 	return result;
 }
 
-Matrix Matrix::operator-=(const Matrix& right) {
-	if (size_x != right.size_x || size_y != right.size_y)
+Matrix Matrix::operator+(const Matrix& right) const {
+	if (row != right.row || col != right.col)
 	{
-		std::cout << "ERROR: arrays of different sizes!" << std::endl;
+		std::cout << "ERROR: arrays of different sizes." << std::endl;
 		exit(1);
 	}
 
-	for (int i = 0; i < size_x; i++) {
-		for (int j = 0; j < size_y; j++) {
-			toApplyElement(i, j, matrix[i][j] - right.matrix[i][j]);
+	Matrix result(row, col);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			result.array[i][j] = array[i][j] + right.array[i][j];
+		}
+	}
+
+	return result;
+}
+
+Matrix& Matrix::operator+=(const Matrix& right) {
+	if (row != right.row || col != right.col)
+	{
+		std::cout << "ERROR: arrays of different sizes." << std::endl;
+		exit(1);
+	}
+
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			array[i][j] = array[i][j] + right.array[i][j];
 		}
 	}
 
 	return *this;
+}
+
+Matrix Matrix::operator-(const Matrix& right) const {
+	if (row != right.row || col != right.col)
+	{
+		std::cout << "ERROR: arrays of different sizes." << std::endl;
+		exit(1);
+	}
+
+	Matrix result(row, col);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			result.array[i][j] = array[i][j] - right.array[i][j];
+		}
+	}
+
+	return result;
+}
+
+Matrix& Matrix::operator-=(const Matrix& right) {
+	if (row != right.row || col != right.col)
+	{
+		std::cout << "ERROR: arrays of different sizes." << std::endl;
+		exit(1);
+	}
+
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			array[i][j] = array[i][j] - right.array[i][j];
+		}
+	}
+
+	return *this;
+}
+
+Matrix Matrix::operator*(const Matrix& right) const {
+	if (col != right.row) {
+		std::cout << "matrices are incompatible." << std::endl;
+		exit(1);
+	}
+
+	Matrix result(row, right.col);
+	for (int i = 0; i < result.row; i++) {
+		for (int j = 0; j < result.col; j++) {
+			result.array[i][j] = 0;
+			for (int k = 0; k < right.row; k++) {
+				result.array[i][j] = result.array[i][j] + array[i][k] * right.array[k][j];
+			}
+		}
+	}
+
+	return result;
+}
+
+Matrix Matrix::operator*(float value) const {
+	Matrix result(row, col);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++)
+		{
+			result.array[i][j] = array[i][j] * value;
+		}
+	}
+
+	return result;
+}
+
+Matrix Matrix::operator/(float value) const {
+	if (!value) {
+		std::cout << "division by zero." << std::endl;
+		exit(1);
+	}
+
+	Matrix result(row, col);
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++)
+		{
+			result.array[i][j] = array[i][j] / value;
+		}
+	}
+
+	return result;
 }
 
 Matrix& Matrix::operator=(const Matrix& right) {
-	if (&right != this) // чтобы не выполнялось самоприсваивание
+
+	if (row != right.row || col != right.col)
 	{
-		if (this->size_x != right.size_x || this->size_y != right.size_y)
-		{
-			for (int i = 0; i < this->size_x; i++) {
-				delete[] this->matrix[i];
-			}
-			delete[] this->matrix;
+		for (int i = 0; i < row; i++) {
+			delete[] array[i];
+		}
+		delete[] array;
 
-			this->size_x = right.size_x; // установить нужный размер матрицы
-			this->size_y = right.size_y;
+		row = right.row;
+		col = right.col;
 
-			this->matrix = new float* [this->size_x];
-			for (int i = 0; i < this->size_x; i++) {
-				this->matrix[i] = new float[this->size_y];
+		array = new float* [row];
+		for (int i = 0; i < row; i++) {
+			array[i] = new float[col];
+			for (int j = 0; j < col; j++) {
+				array[i][j] = right.array[i][j];
 			}
 		}
-
-		for (int i = 0; i < this->size_x; i++)
-			for (int j = 0; j < this->size_y; j++)
-				this->matrix[i][j] = right.matrix[i][j]; // скопировать массив
+	}
+	else {
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				array[i][j] = right.array[i][j];
+			}
+		}
 	}
 
 	return *this;
 }
 
-Matrix Matrix::operator*(float num) {
-
-	Matrix result(this->size_y, this->size_x);
-	for (int i = 0; i < this->size_x; i++) {
-		for (int j = 0; j < this->size_y; j++) {
-			result.matrix[i][j] = this->matrix[i][j] * num;
+Matrix operator*(float value, const Matrix& right) {
+	Matrix result(right.row, right.col);
+	for (int i = 0; i < right.row; i++) {
+		for (int j = 0; j < right.col; j++) {
+			result.array[i][j] = value * right.array[i][j];
 		}
 	}
 
 	return result;
 }
 
-Matrix operator*(float num, const Matrix& right)
-{
-	Matrix result(right.size_y, right.size_x);
-	for (int i = 0; i < right.size_x; i++) {
-		for (int j = 0; j < right.size_y; j++) {
-			result.matrix[i][j] = right.matrix[i][j] * num;
-		}
-	}
-
-	return result;
-}
-
-Matrix Matrix::operator/(float num) {
-	if (!num) {
-		std::cout << "ERROR: division by zero" << std::endl;
+Matrix multiplication(const Matrix& left, const Matrix& right) {
+	if (left.row != right.row || left.col != right.col)
+	{
+		std::cout << "ERROR: arrays of different sizes!" << std::endl;
 		exit(1);
 	}
 
-	Matrix result(this->size_y, this->size_x);
-	for (int i = 0; i < this->size_x; i++) {
-		for (int j = 0; j < this->size_y; j++) {
-			result.matrix[i][j] = this->matrix[i][j] / num;
+	Matrix result(left.row, left.col);
+	for (int i = 0; i < left.row; i++) {
+		for (int j = 0; j < left.col; j++) {
+			result.array[i][j] = left.array[i][j] * right.array[i][j];
 		}
 	}
 
@@ -235,9 +266,6 @@ Matrix Matrix::operator/(float num) {
 }
 
 Matrix::~Matrix() {
-	for (int i = 0; i < size_x; i++) {
-		delete[] matrix[i];
-	}
-	delete[] matrix;
+	for (int i = 0; i < row; i++) delete[] array[i];
+	delete array;
 }
- 
